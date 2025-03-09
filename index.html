@@ -17,35 +17,78 @@
         }
         #prompt {
             color: #d3d3d3;
-            font-size: 2em; /* Original size */
+            font-size: 2em;
             position: absolute;
             pointer-events: none;
             transition: opacity 0.5s ease;
         }
         .letter {
             position: absolute;
-            font-size: 2em; /* Now matches prompt */
+            font-size: 2em;
             color: #333;
             font-family: 'Courier New', Courier, monospace;
             transition: opacity 2s ease-out, transform 2s ease-out;
+        }
+        #mobile-button {
+            display: none; /* Hidden by default */
+            position: absolute;
+            font-size: 1.5em;
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #hidden-input {
+            position: absolute;
+            opacity: 0; /* Invisible */
+            width: 0;
+            height: 0;
+            border: none;
+        }
+        /* Show button on mobile (screen width <= 768px) */
+        @media (max-width: 768px) {
+            #mobile-button {
+                display: block;
+            }
+            #prompt {
+                display: none; /* Hide prompt on mobile until button clicked */
+            }
         }
     </style>
 </head>
 <body>
     <div id="prompt">start typing</div>
+    <button id="mobile-button">Tap to Type</button>
+    <input id="hidden-input" type="text" />
     <script>
         const prompt = document.getElementById('prompt');
+        const mobileButton = document.getElementById('mobile-button');
+        const hiddenInput = document.getElementById('hidden-input');
         let typingStarted = false;
         let timeoutId = null;
 
         function resetPrompt() {
             prompt.style.opacity = '1';
+            mobileButton.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+            hiddenInput.blur(); // Remove focus from input
             typingStarted = false;
         }
 
+        // Mobile button click to trigger keyboard
+        mobileButton.addEventListener('click', () => {
+            mobileButton.style.display = 'none';
+            prompt.style.opacity = '0';
+            hiddenInput.focus(); // Bring up keyboard
+            typingStarted = true;
+        });
+
+        // Handle typing (works for both desktop and mobile)
         document.addEventListener('keydown', (e) => {
             if (!typingStarted) {
                 prompt.style.opacity = '0';
+                mobileButton.style.display = 'none';
                 typingStarted = true;
             }
 
@@ -67,7 +110,6 @@
                 const distance = 200 + Math.random() * 100;
                 const endX = startX + Math.cos(angle) * distance;
                 const endY = startY + Math.sin(angle) * distance;
-
                 const wobble = Math.sin(Date.now() * 0.01) * 5;
 
                 setTimeout(() => {
