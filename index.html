@@ -40,7 +40,7 @@
             cursor: pointer;
         }
         #mobile-input {
-            display: none; /* Hidden by default */
+            display: none;
             position: absolute;
             font-size: 2em;
             color: #333;
@@ -48,8 +48,8 @@
             background: none;
             border: none;
             text-align: center;
-            outline: none; /* Remove focus outline */
-            width: 50%; /* Wide enough for typing */
+            outline: none;
+            width: 50%;
         }
         @media (max-width: 768px) {
             #mobile-button {
@@ -72,6 +72,10 @@
         let typingStarted = false;
         let timeoutId = null;
 
+        // Calculate center once on load to avoid viewport shift issues
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
         function resetPrompt() {
             prompt.style.opacity = '1';
             mobileButton.style.display = window.innerWidth <= 768 ? 'block' : 'none';
@@ -86,20 +90,19 @@
             letter.classList.add('letter');
             letter.textContent = key;
 
-            const startX = window.innerWidth / 2;
-            const startY = window.innerHeight / 2;
-            letter.style.left = `${startX}px`;
-            letter.style.top = `${startY}px`;
+            // Use fixed center coordinates
+            letter.style.left = `${centerX}px`;
+            letter.style.top = `${centerY}px`;
             document.body.appendChild(letter);
 
             const angle = Math.random() * 2 * Math.PI;
             const distance = 200 + Math.random() * 100;
-            const endX = startX + Math.cos(angle) * distance;
-            const endY = startY + Math.sin(angle) * distance;
+            const endX = centerX + Math.cos(angle) * distance;
+            const endY = centerY + Math.sin(angle) * distance;
             const wobble = Math.sin(Date.now() * 0.01) * 5;
 
             setTimeout(() => {
-                letter.style.transform = `translate(${endX - startX}px, ${endY - startY}px) rotate(${wobble}deg)`;
+                letter.style.transform = `translate(${endX - centerX}px, ${endY - centerY}px) rotate(${wobble}deg)`;
                 letter.style.opacity = '0';
             }, 10);
 
@@ -137,7 +140,7 @@
 
         // Desktop typing
         document.addEventListener('keydown', (e) => {
-            if (window.innerWidth > 768) { // Only for desktop
+            if (window.innerWidth > 768) {
                 if (!typingStarted) {
                     prompt.style.opacity = '0';
                     mobileButton.style.display = 'none';
