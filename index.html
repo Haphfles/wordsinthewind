@@ -30,13 +30,13 @@
             transition: opacity 2s ease-out, transform 2s ease-out;
         }
         #mobile-button {
-            display: none; /* Hidden by default */
+            display: none;
             position: absolute;
-            color: #d3d3d3; /* Matches prompt */
-            font-size: 2em; /* Matches prompt */
-            font-family: 'Courier New', Courier, monospace; /* Matches prompt */
-            background: none; /* No background */
-            border: none; /* No border */
+            color: #d3d3d3;
+            font-size: 2em;
+            font-family: 'Courier New', Courier, monospace;
+            background: none;
+            border: none;
             cursor: pointer;
         }
         #hidden-input {
@@ -46,13 +46,12 @@
             height: 0;
             border: none;
         }
-        /* Show button on mobile (screen width <= 768px) */
         @media (max-width: 768px) {
             #mobile-button {
                 display: block;
             }
             #prompt {
-                display: none; /* Hide prompt on mobile until button clicked */
+                display: none;
             }
         }
     </style>
@@ -72,7 +71,35 @@
             prompt.style.opacity = '1';
             mobileButton.style.display = window.innerWidth <= 768 ? 'block' : 'none';
             hiddenInput.blur();
+            hiddenInput.value = ''; // Clear input
             typingStarted = false;
+        }
+
+        function floatLetter(key) {
+            const letter = document.createElement('span');
+            letter.classList.add('letter');
+            letter.textContent = key;
+
+            const startX = window.innerWidth / 2;
+            const startY = window.innerHeight / 2;
+            letter.style.left = `${startX}px`;
+            letter.style.top = `${startY}px`;
+            document.body.appendChild(letter);
+
+            const angle = Math.random() * 2 * Math.PI;
+            const distance = 200 + Math.random() * 100;
+            const endX = startX + Math.cos(angle) * distance;
+            const endY = startY + Math.sin(angle) * distance;
+            const wobble = Math.sin(Date.now() * 0.01) * 5;
+
+            setTimeout(() => {
+                letter.style.transform = `translate(${endX - startX}px, ${endY - startY}px) rotate(${wobble}deg)`;
+                letter.style.opacity = '0';
+            }, 10);
+
+            setTimeout(() => {
+                letter.remove();
+            }, 2000);
         }
 
         mobileButton.addEventListener('click', () => {
@@ -82,6 +109,24 @@
             typingStarted = true;
         });
 
+        // Handle typing via input event for mobile and desktop compatibility
+        hiddenInput.addEventListener('input', (e) => {
+            if (!typingStarted) {
+                prompt.style.opacity = '0';
+                mobileButton.style.display = 'none';
+                typingStarted = true;
+            }
+
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(resetPrompt, 3000);
+
+            const key = e.data; // Get the latest typed character
+            if (key && key.length === 1) {
+                floatLetter(key);
+            }
+        });
+
+        // Fallback for desktop physical keyboard
         document.addEventListener('keydown', (e) => {
             if (!typingStarted) {
                 prompt.style.opacity = '0';
@@ -93,30 +138,7 @@
             timeoutId = setTimeout(resetPrompt, 3000);
 
             if (e.key.length === 1) {
-                const letter = document.createElement('span');
-                letter.classList.add('letter');
-                letter.textContent = e.key;
-
-                const startX = window.innerWidth / 2;
-                const startY = window.innerHeight / 2;
-                letter.style.left = `${startX}px`;
-                letter.style.top = `${startY}px`;
-                document.body.appendChild(letter);
-
-                const angle = Math.random() * 2 * Math.PI;
-                const distance = 200 + Math.random() * 100;
-                const endX = startX + Math.cos(angle) * distance;
-                const endY = startY + Math.sin(angle) * distance;
-                const wobble = Math.sin(Date.now() * 0.01) * 5;
-
-                setTimeout(() => {
-                    letter.style.transform = `translate(${endX - startX}px, ${endY - startY}px) rotate(${wobble}deg)`;
-                    letter.style.opacity = '0';
-                }, 10);
-
-                setTimeout(() => {
-                    letter.remove();
-                }, 2000);
+                floatLetter(e.key);
             }
         });
     </script>
