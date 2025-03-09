@@ -39,12 +39,17 @@
             border: none;
             cursor: pointer;
         }
-        #hidden-input {
+        #mobile-input {
+            display: none; /* Hidden by default */
             position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
+            font-size: 2em;
+            color: #333;
+            font-family: 'Courier New', Courier, monospace;
+            background: none;
             border: none;
+            text-align: center;
+            outline: none; /* Remove focus outline */
+            width: 50%; /* Wide enough for typing */
         }
         @media (max-width: 768px) {
             #mobile-button {
@@ -59,19 +64,20 @@
 <body>
     <div id="prompt">start typing</div>
     <button id="mobile-button">start typing</button>
-    <input id="hidden-input" type="text" />
+    <input id="mobile-input" type="text" />
     <script>
         const prompt = document.getElementById('prompt');
         const mobileButton = document.getElementById('mobile-button');
-        const hiddenInput = document.getElementById('hidden-input');
+        const mobileInput = document.getElementById('mobile-input');
         let typingStarted = false;
         let timeoutId = null;
 
         function resetPrompt() {
             prompt.style.opacity = '1';
             mobileButton.style.display = window.innerWidth <= 768 ? 'block' : 'none';
-            hiddenInput.blur();
-            hiddenInput.value = ''; // Clear input
+            mobileInput.style.display = 'none';
+            mobileInput.value = '';
+            mobileInput.blur();
             typingStarted = false;
         }
 
@@ -105,40 +111,45 @@
         mobileButton.addEventListener('click', () => {
             mobileButton.style.display = 'none';
             prompt.style.opacity = '0';
-            hiddenInput.focus();
+            mobileInput.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+            mobileInput.focus();
             typingStarted = true;
         });
 
-        // Handle typing via input event for mobile and desktop compatibility
-        hiddenInput.addEventListener('input', (e) => {
+        // Mobile typing
+        mobileInput.addEventListener('input', (e) => {
             if (!typingStarted) {
                 prompt.style.opacity = '0';
                 mobileButton.style.display = 'none';
+                mobileInput.style.display = 'block';
                 typingStarted = true;
             }
 
             clearTimeout(timeoutId);
             timeoutId = setTimeout(resetPrompt, 3000);
 
-            const key = e.data; // Get the latest typed character
+            const key = e.data;
             if (key && key.length === 1) {
                 floatLetter(key);
+                mobileInput.value = ''; // Clear input after each letter
             }
         });
 
-        // Fallback for desktop physical keyboard
+        // Desktop typing
         document.addEventListener('keydown', (e) => {
-            if (!typingStarted) {
-                prompt.style.opacity = '0';
-                mobileButton.style.display = 'none';
-                typingStarted = true;
-            }
+            if (window.innerWidth > 768) { // Only for desktop
+                if (!typingStarted) {
+                    prompt.style.opacity = '0';
+                    mobileButton.style.display = 'none';
+                    typingStarted = true;
+                }
 
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(resetPrompt, 3000);
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(resetPrompt, 3000);
 
-            if (e.key.length === 1) {
-                floatLetter(e.key);
+                if (e.key.length === 1) {
+                    floatLetter(e.key);
+                }
             }
         });
     </script>
