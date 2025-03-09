@@ -32,17 +32,16 @@
         #mobile-button {
             display: none; /* Hidden by default */
             position: absolute;
-            font-size: 1.5em;
-            padding: 10px 20px;
-            background: #f0f0f0;
-            border: none;
-            border-radius: 5px;
+            color: #d3d3d3; /* Matches prompt */
+            font-size: 2em; /* Matches prompt */
+            font-family: 'Courier New', Courier, monospace; /* Matches prompt */
+            background: none; /* No background */
+            border: none; /* No border */
             cursor: pointer;
-            font-family: 'Courier New', Courier, monospace;
         }
         #hidden-input {
             position: absolute;
-            opacity: 0; /* Invisible */
+            opacity: 0;
             width: 0;
             height: 0;
             border: none;
@@ -60,7 +59,7 @@
 </head>
 <body>
     <div id="prompt">start typing</div>
-    <button id="mobile-button">Tap to Type</button>
+    <button id="mobile-button">start typing</button>
     <input id="hidden-input" type="text" />
     <script>
         const prompt = document.getElementById('prompt');
@@ -72,19 +71,17 @@
         function resetPrompt() {
             prompt.style.opacity = '1';
             mobileButton.style.display = window.innerWidth <= 768 ? 'block' : 'none';
-            hiddenInput.blur(); // Remove focus from input
+            hiddenInput.blur();
             typingStarted = false;
         }
 
-        // Mobile button click to trigger keyboard
         mobileButton.addEventListener('click', () => {
             mobileButton.style.display = 'none';
             prompt.style.opacity = '0';
-            hiddenInput.focus(); // Bring up keyboard
+            hiddenInput.focus();
             typingStarted = true;
         });
 
-        // Handle typing (works for both desktop and mobile)
         document.addEventListener('keydown', (e) => {
             if (!typingStarted) {
                 prompt.style.opacity = '0';
