@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palavras ao Vento</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #prompt {
+            color: #d3d3d3;
+            font-size: 2em; /* Original size */
+            position: absolute;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .letter {
+            position: absolute;
+            font-size: 2em; /* Now matches prompt */
+            color: #333;
+            font-family: 'Courier New', Courier, monospace;
+            transition: opacity 2s ease-out, transform 2s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="prompt">start typing</div>
+    <script>
+        const prompt = document.getElementById('prompt');
+        let typingStarted = false;
+        let timeoutId = null;
+
+        function resetPrompt() {
+            prompt.style.opacity = '1';
+            typingStarted = false;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!typingStarted) {
+                prompt.style.opacity = '0';
+                typingStarted = true;
+            }
+
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(resetPrompt, 3000);
+
+            if (e.key.length === 1) {
+                const letter = document.createElement('span');
+                letter.classList.add('letter');
+                letter.textContent = e.key;
+
+                const startX = window.innerWidth / 2;
+                const startY = window.innerHeight / 2;
+                letter.style.left = `${startX}px`;
+                letter.style.top = `${startY}px`;
+                document.body.appendChild(letter);
+
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = 200 + Math.random() * 100;
+                const endX = startX + Math.cos(angle) * distance;
+                const endY = startY + Math.sin(angle) * distance;
+
+                const wobble = Math.sin(Date.now() * 0.01) * 5;
+
+                setTimeout(() => {
+                    letter.style.transform = `translate(${endX - startX}px, ${endY - startY}px) rotate(${wobble}deg)`;
+                    letter.style.opacity = '0';
+                }, 10);
+
+                setTimeout(() => {
+                    letter.remove();
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
